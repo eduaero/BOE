@@ -39,7 +39,8 @@ class NavigateBOE:
 
 email = "eduardotolalosa@gmail.com"
 password = ""
-# chrome_driver_path = "C:/Users/Eduardo Tola/PycharmProjects/BOE/selenium_driver/chromedriver.exe"
 driver = webdriver.Chrome(ChromeDriverManager().install())
 BOE = NavigateBOE(email=email, password = password, chrome_driver_path = driver)
 BOE.sign_in()
+
+# https://chromedriver.chromium.org/mobile-emulation

@@ -25,6 +25,7 @@ class GetDataBoe:
         self.subastas_list = subastas_list
         self.subastas_list_stop = subastas_list_stop
         self.url_madrid_base = 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_WjJnR095Q0t6Mkt6NGhrT0dWVmFTSnhQNlB3aHh2d3ZkZEtMMGc2UWswa3hjWXI3N1dMazhoT0lFSVF3REhyZ3FvRWtrdzRQcnBWTTJnNzFmQ0lGMlJxQ3FLNnRTUG9WL3lpYy9URmNsVnRGaktYNlIwT3NscWoyK3BpTlVValMvSTVSQkxrN2tCSzV5eTdiWEh2dWxRRlFwRVhvVVUvc1JtUUl1TE9DbVE0cFlQbGEwdHFtam9YUlFUZXE2SExjeS95ODhTOFdWTjArZHBBTmdCaG5PQk01ODQrbXgrenVlOTRzS2U1eWNhQndubS9rMzhwVDFpSlBIZ2NxVkxEWk00dzFYZzZ0R0oyRllzaUJQRlNsdXNod1FhMUI2MDZzbHJkQkkzVkhCSkE9-'
+        self.url_all = 'https://subastas.boe.es/reg/subastas_ava.php?campo%5B0%5D=SUBASTA.ORIGEN&dato%5B0%5D=&campo%5B1%5D=SUBASTA.ESTADO&dato%5B1%5D=&campo%5B2%5D=BIEN.TIPO&dato%5B2%5D=&dato%5B3%5D=&campo%5B4%5D=BIEN.DIRECCION&dato%5B4%5D=&campo%5B5%5D=BIEN.CODPOSTAL&dato%5B5%5D=&campo%5B6%5D=BIEN.LOCALIDAD&dato%5B6%5D=&campo%5B7%5D=BIEN.COD_PROVINCIA&dato%5B7%5D=&campo%5B8%5D=SUBASTA.POSTURA_MINIMA_MINIMA_LOTES&dato%5B8%5D=&campo%5B9%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_1&dato%5B9%5D=&campo%5B10%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_2&dato%5B10%5D=&campo%5B11%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_3&dato%5B11%5D=&campo%5B12%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_4&dato%5B12%5D=&campo%5B13%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_5&dato%5B13%5D=&campo%5B14%5D=SUBASTA.ID_SUBASTA_BUSCAR&dato%5B14%5D=&campo%5B15%5D=SUBASTA.FECHA_FIN_YMD&dato%5B15%5D%5B0%5D=&dato%5B15%5D%5B1%5D=&campo%5B16%5D=SUBASTA.FECHA_INICIO_YMD&dato%5B16%5D%5B0%5D=&dato%5B16%5D%5B1%5D=&page_hits=50&sort_field%5B0%5D=SUBASTA.FECHA_FIN_YMD&sort_order%5B0%5D=desc&sort_field%5B1%5D=SUBASTA.FECHA_FIN_YMD&sort_order%5B1%5D=asc&sort_field%5B2%5D=SUBASTA.HORA_FIN&sort_order%5B2%5D=asc&accion=Buscar'
         self.num_subastas = 0
         self.break_code = False
         self.link_url = []
@@ -212,5 +213,9 @@ subastas_list = ["SUB-AT-2020-19R2886001764", "SUB-AT-2020-19R2886001764",
 subastas_list_stop = 3  # Number of previous subastas to be found before breaking the code
 GetDataBoe = GetDataBoe(page=page, subastas_list=subastas_list, subastas_list_stop=subastas_list_stop)
 GetDataBoe.perform_loop()
+
+# Include json in GetDataBoe
+
+#
 
 
