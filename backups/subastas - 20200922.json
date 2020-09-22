@@ -7510,4 +7510,41 @@
         "Puerta": "05",
         "Superficie Catastral (m2)": "9"
     }
+}{
+    "URL": {
+        "URL": "https://subastas.boe.es/./detalleSubasta.php?idSub=SUB-JA-2020-146916&idBus=_QjlqRXZva3VCU0JtYW51ZHRQeDVjQWJyQTZ4V0xza1Uvc3RUeWJHM1Z5NnV6U0RCbnVza1hwSVhUSEMyeThxaGNFemZreHFIVE0vcC80c3lyTHYwVVlZSGNjaUNwZkxkU3p5bXBYSEFDMXNQVUxybHQwSnBaTURoYlpobUw5eEtUZS8zTkwyT3U3aFR1MFF1bnFIcDNnZnZjemdBMG1ldnFOd2xhL0hYdUVvY0NRbUptT0daQ3JEQ1JMdVgzUDNwL05DS3BPQmhoNE5UcDc3UTgrVzR0cVRSMlc2QnA5QkNMd3ZvUm1mMHI2M1RxamthelhRVnpXYnlMRXdIRU1jMXhlWFRLQWc0SkxMMnY0Rm9lN1puNU8rWUZ5N3dhNVNtenVQeFhLUHFvZlE9"
+    },
+    "PAGE_1": {
+        "IDENTIFICADOR": "SUB-JA-2020-146916",
+        "TIPO_DE_SUBASTA": "JUDICIAL EN VIA DE APREMIO",
+        "FECHA_DE_INICIO": "03-09-2020 18:00:00 ",
+        "FECHA_DE_CONCLUSION": "23-09-2020 18:00:00 ",
+        "CANTIDAD_RECLAMADA": "145483.02",
+        "LOTES": "Sin lotes",
+        "ANUNCIO_BOE": "BOE-B-2020-27613",
+        "VALOR_SUBASTA": "193405.06",
+        "TASACION": "No consta",
+        "PUJA_MINIMA": "Sin puja minima",
+        "TRAMOS_ENTRE_PUJAS": "3868.1",
+        "IMPORTE_DEL_DEPOSITO": "9670.25"
+    },
+    "PAGE_2": {
+        "CODIGO": "2809641006",
+        "DESCRIPCION": "JUZGADO 1a INST E INSTRUCC. 6 (Ministerio de Justicia)",
+        "DIRECCION": "CL ITALIA 7 7   ; 28600 NAVALCARNERO",
+        "TELEFONO": "918354913",
+        "FAX": "918134707",
+        "CORREO_ELECTRONICO": "navalcarnero-mixto-6@madrid.org"
+    },
+    "PAGE_3_LOTE_1": {
+        "DESCRIPCION": "Solar sito en calle San Blas numero 2 de Pelayos de la Presa, en la cual se ha construido una vivienda unifamiliar ",
+        "REFERENCIA_CATASTRAL": "6878108UK8668N0001MD",
+        "DIRECCION": "CALLE SAN BLAS No 2",
+        "CODIGO_POSTAL": "28696",
+        "LOCALIDAD": "PELAYOS DE LA PREESA",
+        "PROVINCIA": "Madrid",
+        "SITUACION_POSESORIA": "No consta",
+        "VISITABLE": "No consta",
+        "INSCRIPCION_REGISTRAL": "TOMO 577, LIBRO 51, FOLIO 81, FINCA 4088 INSCRIPCION segunda  DEL REGISTRO DE LA PROPIEDAD DE SAN MARTIN DE VALDEIGLESIAS MADRID"
+    }
 }
