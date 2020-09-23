@@ -24,6 +24,7 @@ class NavigateBOE:
         self.email = email
         self.password = password
 
+    #Get the code used to identify each province in the site
     def get_province_code(self,province):
         ciudades = ["Álava", "Albacete", "Alicante", "Almería", "Ávila", "Badajoz",
         "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Castellón",
@@ -40,7 +41,8 @@ class NavigateBOE:
             if p == province:
                 return codigos[y]
 
-    def sign_in(self,provincia):
+    def sign_in(self,provincia,subasta_following):
+        #Creation of the driver and log in with credentials
         driver = self.driver
         driver.get("https://subastas.boe.es/")
         driver.find_element_by_xpath("//div[@id='menu_principal']/ul/li[4]/a/span").click()
@@ -53,27 +55,67 @@ class NavigateBOE:
         driver.find_element_by_id("labelPassword").send_keys(self.password)
         driver.find_element_by_id("conectar").click()
 
+        #Search for the province chosen
         id_provincia = Select(driver.find_element_by_id("ID_provincia"))
         id_provincia.select_by_value(self.get_province_code(provincia))
         driver.find_element_by_xpath("//input[@value='Buscar']").click()
-        url_pagina1 = driver.current_url
-        print(url_pagina1)
 
-        r = requests.get(url_pagina1)
-        data = r.text
-        soup = BeautifulSoup(data, "html5lib")
-        url_pagina2 = soup.findAll('a', href=True)[13]
-        print(url_pagina2)
-        url_base =url_pagina2[:-5]
-        print(url_base)
-        return url_base
-
+        #Search for the subastas to follow
+        pujas = []
+        id_page = 0
+        for s in subasta_following:
+            subasta_text = "//a[@title='Subasta " + s + "']"
+            try:
+                driver.find_element_by_xpath(subasta_text).click()
+            except NoSuchElementException as exception:
+                # if the subasta is not in the first page, go to the second
+                id_page = 2
+                driver.find_element_by_partial_link_text("2").click()
+                driver.find_element_by_xpath(subasta_text).click()
+                driver.find_element_by_partial_link_text("Pujas").click()
+                try:
+                    driver.find_element_by_xpath("//strong[@class='destaca']").text
+                except Exception:
+                    puja = 'Sin pujas'
+                    pujas.append(puja)
+                else:
+                    puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
+                    pujas.append(puja)
+            else:
+                id_page = 1
+                #driver.find_element_by_xpath(subasta_text).click()
+                driver.find_element_by_partial_link_text("Pujas").click()
+                try:
+                    driver.find_element_by_xpath("//strong[@class='destaca']").text
+                except Exception:
+                    puja = 'Sin pujas'
+                    pujas.append(puja)
+                else:
+                    puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
+                    pujas.append(puja)
+            finally:
+                if id_page == 1:
+                    driver.execute_script("window.history.go(-2)") #Go back to the main site to search for more subastas
+                else:
+                    driver.execute_script("window.history.go(-3)")  # Go back to the main site to search for more subastas
+        return pujas
 
 email = "@gmail.com"
 password = ""
-driver = webdriver.Chrome(ChromeDriverManager().install())
+
+option = webdriver.ChromeOptions()
+option.add_argument("--incognito") #Execute in incognito window
+option.add_argument("--headless") #Don't show execution
+driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
+
+subasta_following = ['SUB-JA-2020-151496','SUB-NE-2020-555938','SUB-JA-2020-151351','SUB-JA-2020-151495']
+
 BOE = NavigateBOE(email=email, password = password, chrome_driver_path = driver)
-url_base = BOE.sign_in("Madrid")
+pujas = BOE.sign_in("Madrid", subasta_following)
+print(subasta_following)
+print(pujas)
 
 
 # https://chromedriver.chromium.org/mobile-emulation
+
+

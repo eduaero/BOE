@@ -466,10 +466,10 @@ newbies = GetDataBoe.newbies #New subastas found in the execution
 #Load data from json, create dataframe and create an excel
 b = open_json()
 df = adapt_content(b)
-#df.to_excel("subastas_output.xlsx",index=False)
+df.to_excel("subastas_output.xlsx",index=False)
 
 #Send email
-#if newbies != []:
-    #send_mail(df,newbies)
-#    print("Mail sent successfully.")
+if newbies != []:
+    send_mail(df,newbies)
+    print("Mail sent successfully.")
 
