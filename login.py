@@ -12,20 +12,27 @@ from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import requests
 from unidecode import unidecode
+import ast
+import smtplib
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from smtplib import SMTP
+from pretty_html_table import build_table
+import pandas as pd
 
 
 class NavigateBOE:
     def __init__(self, email, password, chrome_driver_path):
         self.driver = driver
         self.driver.implicitly_wait(30)
-        self.base_url = "https://www.google.com/"
         self.verificationErrors = []
         self.accept_next_alert = True
         self.email = email
         self.password = password
 
 
-    #Get the code used to identify each province in the site
+    # Get the code used to identify each province in the site
     def get_province_code(self, province):
         ciudades = ["Álava", "Albacete", "Alicante", "Almería", "Ávila", "Badajoz",
         "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Castellón",
@@ -43,6 +50,21 @@ class NavigateBOE:
                 return codigos[y]
 
 
+    # Get the price of the puja
+    def find_puja(self, pujas):
+        try:
+            driver.find_element_by_xpath("//strong[@class='destaca']").text
+        # if there is no puja
+        except Exception:
+            puja = 'Sin pujas'
+            pujas.append(puja)
+        else:
+            puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
+            pujas.append(puja)
+        return pujas
+
+
+    # Main function
     def sign_in(self, provincia, subasta_following):
         # Creation of the driver and log in with credentials
         driver = self.driver
@@ -84,43 +106,18 @@ class NavigateBOE:
                     driver.find_element_by_xpath(subasta_text).click()
                     driver.find_element_by_partial_link_text("Pujas").click()
                     # Retrieve puja
-                    try:
-                        driver.find_element_by_xpath("//strong[@class='destaca']").text
-                    # if there is no puja
-                    except Exception:
-                        puja = 'Sin pujas'
-                        pujas.append(puja)
-                    else:
-                        puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
-                        pujas.append(puja)
+                    pujas = self.find_puja(pujas)
                 # Execution in page 2
                 else:
-                    #driver.find_element_by_xpath(subasta_text).click()
                     driver.find_element_by_partial_link_text("Pujas").click()
                     #Retrieve puja
-                    try:
-                        driver.find_element_by_xpath("//strong[@class='destaca']").text
-                    # if there is no puja
-                    except Exception:
-                        puja = 'Sin pujas'
-                        pujas.append(puja)
-                    else:
-                        puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
-                        pujas.append(puja)
+                    pujas = self.find_puja(pujas)
 
             # Execution in page 1
             else:
                 id_page = 1
-                #driver.find_element_by_xpath(subasta_text).click()
                 driver.find_element_by_partial_link_text("Pujas").click()
-                try:
-                    driver.find_element_by_xpath("//strong[@class='destaca']").text
-                except Exception:
-                    puja = 'Sin pujas'
-                    pujas.append(puja)
-                else:
-                    puja = driver.find_element_by_xpath("//strong[@class='destaca']").text
-                    pujas.append(puja)
+                pujas = self.find_puja(pujas)
             # Go back to the main site to search for more subastas
             finally:
                 if id_page == 1:
@@ -132,21 +129,55 @@ class NavigateBOE:
 
         return pujas
 
-email = "@gmail.com"
-password = ""
 
+def send_mail(email_content):
+    output = build_table(email_content, 'blue_light')  # Format of the email
+    body = output.replace('&lt;', '<').replace('&gt;', '>')
+
+    # Content of the email
+    message = MIMEMultipart()
+    message['Subject'] = 'Seguimiento subastas'
+    message['From'] = SENDING_EMAIL
+    message['To'] = TO_EMAILS
+    body_content = body
+    message.attach(MIMEText(body_content, "html"))
+    msg_body = message.as_string()
+
+    # Server setup
+    server = SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(message['From'], PASSWORD)
+    server.sendmail(message['From'], message['To'], msg_body)
+    server.quit()
+
+
+# CODE
+# Get credentials from credentials.txt
+email = open("credentials.txt", "r").read().split('\n')[0]
+password = open("credentials.txt", "r").read().split('\n')[1]
+
+# Define Chrome driver
 option = webdriver.ChromeOptions()
 option.add_argument("--incognito")  # Execute in incognito window
 option.add_argument("--headless")  # Don't show execution
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 
-subasta_following = ['SUB-RC-2020-28010001S1903', 'SUB-JA-2020-154493', 'SUB-JA-2020-152591', 'SUB-JA-2020-153741', 'SUB-JA-2020-152289', 'SUB-JA-2020-149372', 'SUB-JA-2020-153156']
-# 100m2 avenida de amércia #163m2 pinar de chamartín #64m2 antonio lópez lote 1
-# 65m2 o 98m2 chamartín #66m2 aluche #204m2 pozuelo #140m2 juan bravo
+# Get subastas to follow from subastas_following.txt
+subastas_following = open("subastas_following.txt", "r").read().split('\n')
 
+# Create navigation object and get pujas data
 BOE = NavigateBOE(email=email, password=password, chrome_driver_path=driver)
-pujas = BOE.sign_in("Madrid", subasta_following)
-print(subasta_following)
-print(pujas)
+pujas = BOE.sign_in("Madrid", subastas_following)
+email_content = pd.DataFrame(pujas)
+email_content['ID'] = subastas_following
+email_content.columns = ['Estado', 'ID']
+
+# Get credentials and email list
+SENDING_EMAIL = open("email_credentials.txt", "r").read().split('\n')[0]
+PASSWORD = open("email_credentials.txt", "r").read().split('\n')[1]
+TO_EMAILS = open("emails.txt", "r").read().replace('\n', ';')
+
+# Send email with updates
+send_mail(email_content)
 
 # https://chromedriver.chromium.org/mobile-emulation

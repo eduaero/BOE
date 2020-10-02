@@ -4,4 +4,5 @@
 *.txt
 *.log
 *.xml
+*.csv
 /.idea

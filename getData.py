@@ -19,6 +19,7 @@ from email.mime.text import MIMEText
 from smtplib import SMTP
 from pretty_html_table import build_table
 import warnings
+import csv
 
 # Initial conditions
 pd.set_option('display.max_colwidth', 1000)
@@ -411,94 +412,24 @@ def adapt_content(b):
     return df
 
 
-def prepare_email(df, newbies):
-    # columnas = ['ANUNCIO_BOE','Antigüedad','CANTIDAD_RECLAMADA','CARGAS','CODIGO','CODIGO_POSTAL',
-    # 'CORREO_ELECTRONICO','Clase','Clase de cultivo','Coeficiente de participación','DEPOSITO',
-    # 'DESCRIPCION','DIRECCION','Escalera','FAX','FECHA_DE_ADQUISICION','FECHA_DE_CONCLUSION',
-    # 'FECHA_DE_INICIO','FECHA_DE_MATRICULACION','FORMA_ADJUDICACION','IDENTIFICADOR','IDUFIR',
-    # 'IMPORTE_DEL_DEPOSITO','INFORMACION_ADICIONAL','INSCRIPCION_REGISTRAL','Intensidad productiva',
-    # 'LOCALIDAD','LOTES','Localización','MARCA','MATRICULA','MODELO','NIF','NOMBRE','NUMERO_DE_BASTIDOR',
-    # 'PAIS','PROVINCIA','PUJA_MINIMA','Planta','Puerta','REFERENCIA_CATASTRAL','REFERENCIA_REGISTRAL',
-    # 'Referencia Catastral','SITUACION_POSESORIA','Subparcelas','Superficie','Superficie (ha)',
-    # 'Superficie Catastral (m2)','TASACION','TELEFONO','TIPO_DE_SUBASTA','TITULO_JURIDICO',
-    # 'TRAMOS_ENTRE_PUJAS','URL','Uso','VALOR_SUBASTA','VISITABLE','VIVIENDA_HABITUAL']
-    drop_columns = ['ANUNCIO_BOE', 'Antigüedad', 'CARGAS', 'CODIGO',
-'CORREO_ELECTRONICO', 'Clase', 'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-'Escalera', 'FAX', 'FECHA_DE_ADQUISICION', 'FECHA_DE_CONCLUSION', 'Referencia Catastral',
-'FECHA_DE_MATRICULACION', 'FORMA_ADJUDICACION', 'IDUFIR',
-'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL', 'INSCRIPCION_REGISTRAL', 'Intensidad productiva',
-'LOTES', 'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NUMERO_DE_BASTIDOR',
-'PROVINCIA', 'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL', 'REFERENCIA_REGISTRAL',
-'SITUACION_POSESORIA', 'Subparcelas', 'Superficie', 'Superficie (ha)',
-'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA', 'TITULO_JURIDICO',
-'TRAMOS_ENTRE_PUJAS', 'Uso', 'VISITABLE', 'VIVIENDA_HABITUAL']
-    e = df.drop(columns=drop_columns)
-    try:
-        e = e.drop(coulmns=['NIF', 'NOMBRE', 'PAIS'])
-    except Exception:
-        print('')
-
-    # Filter email by date (yesterday)
-    e['FECHA_DE_INICIO'] = pd.to_datetime(e['FECHA_DE_INICIO'])
-    e['FECHA_DE_INICIO'] = e['FECHA_DE_INICIO'].dt.strftime('%d-%m-%Y')
-    ayer = pd.to_datetime(date.today()-timedelta(days=1), format='%Y-%m-%d')
-    ayer = ayer.strftime('%d-%m-%Y')
-    e = e.drop(columns=['FECHA_DE_INICIO'])
-
-    e['URL'] = str("<a href='") + e['URL'] + str("'>Subasta</a>")  # URL to the subasta
-
-    if e['VALOR_SUBASTA'] == 'Ver valor de subasta en cada lote (los lotes se subastan de forma independiente)':
-        e['VALOR_SUBASTA'] = 0
-    else:
-        e['VALOR_SUBASTA'] = e['VALOR_SUBASTA'].astype('float64')
-
-    e = e[e['IDENTIFICADOR'].isin(newbies)]  # select only new values
-
-    return e
 
 
-def send_mail(df,newbies):
-    email_content = prepare_email(df, newbies)
-    output = build_table(email_content, 'blue_light')
-    body = output.replace('&lt;', '<').replace('&gt;', '>')
-
-    message = MIMEMultipart()
-    hoy = pd.to_datetime(date.today(), format='%Y-%m-%d')
-    hoy = hoy.strftime('%d-%m-%Y')
-    message['Subject'] = 'Subastas BOE del ' + str(hoy)
-    message['From'] = SENDING_EMAIL
-    message['To'] = TO_EMAILS
-
-    body_content = body
-    message.attach(MIMEText(body_content, "html"))
-    msg_body = message.as_string()
-
-    server = SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(message['From'], PASSWORD)
-    server.sendmail(message['From'], message['To'], msg_body)
-    server.quit()
 
 
-# Code to execute
+# CODE
 page = [1, 5]
 subastas_list = get_subastas_in_db()
-subastas_list_stop = 3  # Number of previous subastas to be found before breaking the code
-url_base = 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_R1RSZ200MjNqb2FVQm1YZG9nVGswQU5rMGRyMFlka1c3QVBzeC9hTFF4OUgyTHkvTU5iR1BLVFR5K1JDSnpqTlBrSDJsYUhKbEVXT09vZTFONEpQbUkya05kSk5oNDN4ZUhzZ2FrbVBBTGEweFo5QlE0bVU4NWE2aGtzVkhGWk45QXFqSkMwcUpjRTRBMktZZHM2OEFYSCtwbndsclBPVW4vbENwT0RqaEtGdmtsTlhyem0vSzlXNDRzbGF5NWpTY3F0c0h2Y0JWeDZxekJrVUVIUktCRGd4Rkk4SS95RWtSMHpkeXNjSjc2aDZ0UWUwVkx0S1IvZkM4djRTVGd3T3JqUkhDZU1LemtqejRZcElkbTljcTJMTzBWbGpaSnZETEhhZktnNHZCTEU9-'
+subastas_list_stop = 5  # Number of previous subastas to be found before breaking the code
+url_base = open("url_base.txt", "r").read()
 GetDataBoe = GetDataBoe(page=page, subastas_list=subastas_list, subastas_list_stop=subastas_list_stop, url_base=url_base)
 GetDataBoe.perform_loop()
 newbies = GetDataBoe.newbies  # New subastas found in the execution
+# Save newbies
+with open('newbies.csv', 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter='\n', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    spamwriter.writerow(newbies)
 
 # Load data from json, create dataframe and create an excel
 b = open_json()
 df = adapt_content(b)
-df.to_excel("subastas_output.xlsx",index=False)
-
-# Send email
-SENDING_EMAIL = '@gmail.com'
-PASSWORD = ''
-TO_EMAILS = '@gmail.com'
-
-#if newbies != []:
-    #send_mail(df,newbies)
-    #print("Mail sent successfully.")
+df.to_excel("subastas_output.xlsx", index=False)
