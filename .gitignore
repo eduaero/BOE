@@ -2,6 +2,8 @@
 *.xlsx
 *.pbix
 *.txt
+!url_base.txt
 *.log
 *.xml
+*.csv
 /.idea

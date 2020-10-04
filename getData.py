@@ -3,9 +3,12 @@ import requests
 from unidecode import unidecode
 import json
 import time
-from datetime import datetime,date,timedelta
+from datetime import datetime
+from datetime import date
+from datetime import timedelta
 import dataset
-import sys, os
+import sys
+import os
 import datetime
 import pandas as pd
 import ast
@@ -16,17 +19,12 @@ from email.mime.text import MIMEText
 from smtplib import SMTP
 from pretty_html_table import build_table
 import warnings
+import csv
 
-#Initial conditions
-pd.set_option('display.max_colwidth',1000)
+# Initial conditions
+pd.set_option('display.max_colwidth', 1000)
 pd.options.display.float_format = '{:,.2f} €'.format
 warnings.simplefilter("ignore")
-
-#Email data
-SENDING_EMAIL = '@gmail.com'
-PASSWORD = ''
-TO_EMAILS = '@gmail.com'
-#Permitir el acceso de aplicaciones poco seguras en la cuenta de google que envía
 
 
 # Functions defined
@@ -34,14 +32,21 @@ def curr2num(str_input):
     num = str_input.replace('€', '').replace(',', '').replace('.', '')
     return float(num) / 100
 
+
 def date2format(str_input):
-    date = str_input.split('CET')
-    return date[0]
+    my_date = str_input.split('CET')
+    return my_date[0]
+
 
 def get_subastas_in_db():
-    df = adapt_content(open_json())
+    oj = open_json()
+    # If the file is empty, return an empty array
+    if oj == '':
+        return []
+    df = adapt_content(oj)
     subastas_in_db = df['IDENTIFICADOR'].values.tolist()  # read from database identificadores
     return subastas_in_db
+
 
 # Object to retrieve the data
 class GetDataBoe:
@@ -50,15 +55,11 @@ class GetDataBoe:
         self.subastas_list = subastas_list
         self.subastas_list_stop = subastas_list_stop
         self.url_base = url_base
-        self.url_madrid_base = 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_QjlqRXZva3VCU0JtYW51ZHRQeDVjQWJyQTZ4V0xza1Uvc3RUeWJHM1Z5NnV6U0RCbnVza1hwSVhUSEMyeThxaGNFemZreHFIVE0vcC80c3lyTHYwVVlZSGNjaUNwZkxkU3p5bXBYSEFDMXNQVUxybHQwSnBaTURoYlpobUw5eEtUZS8zTkwyT3U3aFR1MFF1bnFIcDNnZnZjemdBMG1ldnFOd2xhL0hYdUVvY0NRbUptT0daQ3JEQ1JMdVgzUDNwL05DS3BPQmhoNE5UcDc3UTgrVzR0cVRSMlc2QnA5QkNMd3ZvUm1mMHI2M1RxamthelhRVnpXYnlMRXdIRU1jMXhlWFRLQWc0SkxMMnY0Rm9lN1puNU8rWUZ5N3dhNVNtenVQeFhLUHFvZlE9-'
-        #worK (all). 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_WjJnR095Q0t6Mkt6NGhrT0dWVmFTSnhQNlB3aHh2d3ZkZEtMMGc2UWswa3hjWXI3N1dMazhoT0lFSVF3REhyZ3FvRWtrdzRQcnBWTTJnNzFmQ0lGMlJxQ3FLNnRTUG9WL3lpYy9URmNsVnRGaktYNlIwT3NscWoyK3BpTlVValMvSTVSQkxrN2tCSzV5eTdiWEh2dWxRRlFwRVhvVVUvc1JtUUl1TE9DbVE0cFlQbGEwdHFtam9YUlFUZXE2SExjeS95ODhTOFdWTjArZHBBTmdCaG5PQk01ODQrbXgrenVlOTRzS2U1eWNhQndubS9rMzhwVDFpSlBIZ2NxVkxEWk00dzFYZzZ0R0oyRllzaUJQRlNsdXNod1FhMUI2MDZzbHJkQkkzVkhCSkE9-'
-        #(celebrándose) 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_QjlqRXZva3VCU0JtYW51ZHRQeDVjQWJyQTZ4V0xza1Uvc3RUeWJHM1Z5NnV6U0RCbnVza1hwSVhUSEMyeThxaGNFemZreHFIVE0vcC80c3lyTHYwVVlZSGNjaUNwZkxkU3p5bXBYSEFDMXNQVUxybHQwSnBaTURoYlpobUw5eEtUZS8zTkwyT3U3aFR1MFF1bnFIcDNnZnZjemdBMG1ldnFOd2xhL0hYdUVvY0NRbUptT0daQ3JEQ1JMdVgzUDNwL05DS3BPQmhoNE5UcDc3UTgrVzR0cVRSMlc2QnA5QkNMd3ZvUm1mMHI2M1RxamthelhRVnpXYnlMRXdIRU1jMXhlWFRLQWc0SkxMMnY0Rm9lN1puNU8rWUZ5N3dhNVNtenVQeFhLUHFvZlE9-'
-        self.url_all = 'https://subastas.boe.es/reg/subastas_ava.php?campo%5B0%5D=SUBASTA.ORIGEN&dato%5B0%5D=&campo%5B1%5D=SUBASTA.ESTADO&dato%5B1%5D=&campo%5B2%5D=BIEN.TIPO&dato%5B2%5D=&dato%5B3%5D=&campo%5B4%5D=BIEN.DIRECCION&dato%5B4%5D=&campo%5B5%5D=BIEN.CODPOSTAL&dato%5B5%5D=&campo%5B6%5D=BIEN.LOCALIDAD&dato%5B6%5D=&campo%5B7%5D=BIEN.COD_PROVINCIA&dato%5B7%5D=&campo%5B8%5D=SUBASTA.POSTURA_MINIMA_MINIMA_LOTES&dato%5B8%5D=&campo%5B9%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_1&dato%5B9%5D=&campo%5B10%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_2&dato%5B10%5D=&campo%5B11%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_3&dato%5B11%5D=&campo%5B12%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_4&dato%5B12%5D=&campo%5B13%5D=SUBASTA.NUM_CUENTA_EXPEDIENTE_5&dato%5B13%5D=&campo%5B14%5D=SUBASTA.ID_SUBASTA_BUSCAR&dato%5B14%5D=&campo%5B15%5D=SUBASTA.FECHA_FIN_YMD&dato%5B15%5D%5B0%5D=&dato%5B15%5D%5B1%5D=&campo%5B16%5D=SUBASTA.FECHA_INICIO_YMD&dato%5B16%5D%5B0%5D=&dato%5B16%5D%5B1%5D=&page_hits=50&sort_field%5B0%5D=SUBASTA.FECHA_FIN_YMD&sort_order%5B0%5D=desc&sort_field%5B1%5D=SUBASTA.FECHA_FIN_YMD&sort_order%5B1%5D=asc&sort_field%5B2%5D=SUBASTA.HORA_FIN&sort_order%5B2%5D=asc&accion=Buscar'
         self.num_subastas = 0
         self.break_code = False
         self.link_url = []
         self.name_link = []
-        self.pageInfo = [1, 2, 3, 4, 5] #, 6, 7, 8, 9]
+        self.pageInfo = [1, 2, 3, 4, 5]  # , 6, 7, 8, 9]
         self.pageLabel = ["PAGE_1", "PAGE_2", "PAGE_3", "PAGE_4", "PAGE_5", "PAGE_6", "PAGE_7", "PAGE_8", "PAGE_9"]
         self.content_by_subasta = {}
         self.soup_input = "????"
@@ -76,11 +77,11 @@ class GetDataBoe:
                     if a['title'].startswith('Subasta') and a['class'][0] == 'resultado-busqueda-link-defecto':
                         self.name_link.append(a['title'])
                         self.link_url.append(a['href'])
-                except Exception as e:
+                except Exception:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                     continue
-        print('El número de links econtrados es de {}'.format(len(self.link_url)))
+        print('There are {} links'.format(len(self.link_url)))
         return
 
     def get_data_ref_cat(self, url_ref_c):
@@ -93,7 +94,7 @@ class GetDataBoe:
         for a in soup.findAll('a', href=True):
             if a.text:
                 try:
-                    if (a['title'].startswith('Abre datos catastrales en nueva ventana')):
+                    if a['title'].startswith('Abre datos catastrales en nueva ventana'):
                         link.append(a['href'])
                 except:
                     continue
@@ -105,7 +106,7 @@ class GetDataBoe:
         data = soup.findAll('tr')
 
         label = []
-        dataDw = []
+        data_dw = []
         content = {}
         titulos = {}
         cont = {}
@@ -113,10 +114,10 @@ class GetDataBoe:
             thall = a.findAll('th')
             tdall = a.findAll('td')
             if len(thall) == 1:
-                labelName = a.find('th').text
-                label.append(labelName)
-                dataCell = a.find('td').text
-                dataDw.append(dataCell)
+                label_name = a.find('th').text
+                label.append(label_name)
+                data_cell = a.find('td').text
+                data_dw.append(data_cell)
             else:
                 for i, value in enumerate(thall):
                     titulos[i] = value.text
@@ -126,13 +127,13 @@ class GetDataBoe:
                 for i, value in enumerate(tdall):
                     cont[i] = value.text
                 for i, value in enumerate(tdall):
-                    dataDw.append(cont[i])
+                    data_dw.append(cont[i])
 
         for x in range(0, len(label)):
-            content[str(label[x])] = str(dataDw[x])
+            content[str(label[x])] = str(data_dw[x])
 
         sol = {}
-        if (len(content) > 0):
+        if len(content) > 0:
             sol['PAGE_C'] = content
             self.content_by_subasta['PAGE_C'] = content
 
@@ -152,26 +153,31 @@ class GetDataBoe:
             self.get_urls()
 
             t_new = time.time()
-            #Loop over found links (subastas)
+            # Loop over found links (subastas)
             for y in range(0, len(self.link_url)):
                 if self.break_code: break
 
-                #Check if this subasta has already been loaded to the database
-                if str(self.name_link[y]).replace("Subasta ","") in self.subastas_in_db:
-                    continue
+                # Check if this subasta has already been loaded to the database
+                self.subastas_in_db = get_subastas_in_db()
+                if str(self.name_link[y]).replace("Subasta ", "") in self.subastas_in_db:
+                    if self.subastas_list_stop > 0:
+                        self.subastas_list_stop = self.subastas_list_stop - 1
+                        continue
+                    else:
+                        self.break_code = True
+                        break
                 else:
-                    print("Nueva subasta encontrada: %s" % str(self.name_link[y]))
-                    new_to_append = str(self.name_link[y]).replace("Subasta ","")
+                    #print("New subasta found: %s" % str(self.name_link[y]))
+                    new_to_append = str(self.name_link[y]).replace("Subasta ", "")
                     self.newbies.append(new_to_append)
 
                 t_old = t_new
                 t_new = time.time()
-                #print('>> ITERATION %d: time %s seconds' % (y, str(t_new - t_old)))
                 print('>> Subasta %d: %s - time %s seconds' % (y, self.name_link[y], str(t_new - t_old)))
                 num_lotes = -1
                 self.content_by_subasta = {}
                 try:
-                    #Loop over page info (over the number of pages that have a subasta)
+                    # Loop over page info (over the number of pages that have a subasta)
                     for z in range(0, len(self.pageInfo)):
                         if self.break_code: break
                         page = self.pageInfo[z]
@@ -183,12 +189,12 @@ class GetDataBoe:
                         # URL of each page in the subasta
                         url = tempUrl[0] + '&ver={}'.format(page) + '&idBus' + tempUrl[1]
 
-                        #Loop to manage subastas with several lotes
+                        # Loop to manage subastas with several lotes
                         if int(self.pageInfo[z]) == 3:
-                            #More than one lote
+                            # More than one lote
                             if int(num_lotes) != 0:
                                 print('Num lotes: ' + str(num_lotes))
-                                #Iteration over lotes
+                                # Iteration over lotes
                                 for numL in range(1, int(num_lotes) + 1):
                                     print('-----------Lote:' + str(numL) + ' de ' + str(num_lotes))
                                     url = url + '&idLote=' + str(numL) + '&numPagBus='
@@ -198,10 +204,10 @@ class GetDataBoe:
                                     except Exception as e:
                                         exc_type, exc_obj, exc_tb = sys.exc_info()
                                         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                        print(exc_type, fname, exc_tb.tb_lineno)
-                                        print('Exception 1')
+                                        #print(exc_type, fname, exc_tb.tb_lineno)
+                                        #print('Exception 1')
                                         continue
-                            #Only 1 lote
+                            # Only 1 lote
                             else:
                                 pageLabel2pass = self.pageLabel[z] + "_LOTE_1"
                                 try:
@@ -209,10 +215,10 @@ class GetDataBoe:
                                 except Exception as e:
                                     exc_type, exc_obj, exc_tb = sys.exc_info()
                                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                    print(exc_type, fname, exc_tb.tb_lineno)
-                                    print('Exception 2')
+                                    #print(exc_type, fname, exc_tb.tb_lineno)
+                                    #print('Exception 2')
                                     continue
-                            #Management of subastas with referencia catastral
+                            # Management of subastas with referencia catastral
                             try:
                                 contenido_REF_CAT = self.get_data_ref_cat(url)
                             except Exception as e:
@@ -220,7 +226,7 @@ class GetDataBoe:
                                     continue
                                 else:
                                     continue
-                        #Loop to get data from catastro
+                        # Loop to get data from catastro
                         elif int(self.pageInfo[z]) == 4:
                             print('')
                         else:
@@ -231,7 +237,7 @@ class GetDataBoe:
 
                     # This part of the code will stop the execution whether the subastas identifier are already in the database
                     if any(self.content_by_subasta["PAGE_1"]["IDENTIFICADOR"] in s for s in self.subastas_list):
-                        print("The subasta was already in the data base")
+                        print("The subasta was already in the database")
                         self.num_subastas = self.num_subastas + 1
                         print(self.num_subastas)
                         if self.num_subastas == self.subastas_list_stop:
@@ -249,18 +255,18 @@ class GetDataBoe:
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
+                    #print(exc_type, fname, exc_tb.tb_lineno)
                     continue
 
     def getdata2json(self, url, page_label, z, y, num_lotes):
         r = requests.get(url)
         data = r.text
         soup = BeautifulSoup(data, "lxml")
-        if page_label == "PAGE_8":
+        if (page_label == "PAGE_5" or page_label == "PAGE_8"):
             soup2 = soup.find(id='idBloqueDatos8')
-            temp = str(soup2.span)
-            temp = temp.replace('<span class="destaca">', '')
-            temp = temp.replace('</span>', "")
+            temp = str(soup2.strong)
+            temp = temp.replace('<strong class="destaca">', '')
+            temp = temp.replace('</strong>', "")
         data = soup.findAll('tr')
 
         label = []
@@ -268,10 +274,9 @@ class GetDataBoe:
         content = {}
         url_subasta = {"URL": 'https://subastas.boe.es/' + self.link_url[y]}
 
-        if (page_label == "PAGE_8"):
+        if (page_label == "PAGE_5" or page_label=='PAGE_8'):
             label_name = 'PRECIO_PUJA'
             data_cell = temp
-            # print(data_cell)
             if '€' in data_cell:
                 data_cell = curr2num(data_cell)
             else:
@@ -311,13 +316,18 @@ class GetDataBoe:
                 self.content_by_subasta[page_label] = content
         return  num_lotes
 
+
 def open_json():
-    with open('subastas.json') as json_file:
-        # data = json.load(json_file)
-        file = json_file.read()
-    content = file.replace('}{','}-----{')
-    b = content.split('-----')
-    return b
+    try:
+        with open('subastas.json') as json_file:
+            file = json_file.read()
+        content = file.replace('}{', '}-----{')
+        b = content.split('-----')
+        return b
+    except IOError:
+        print("The file does not exist")
+        return ''
+
 
 def adapt_content(b):
     rows_list = []
@@ -351,6 +361,10 @@ def adapt_content(b):
                         d11 = c['PAGE_C']
                         d1.update(d11)
 
+                    if 'PAGE_8' in c:
+                        d12 = c['PAGE_8']
+                        d1.update(d12)
+
                     rows_list.append(d1)
 
             else:
@@ -376,100 +390,46 @@ def adapt_content(b):
                     d11 = c['PAGE_C']
                     d1.update(d11)
 
+                if 'PAGE_8' in c:
+                    d12 = c['PAGE_8']
+                    d1.update(d12)
+
                 rows_list.append(d1)
 
     df = pd.DataFrame(rows_list)
-    df['CANTIDAD_RECLAMADA'] = pd.to_numeric(df['CANTIDAD_RECLAMADA'].fillna(0))
-    df['IMPORTE_DEL_DEPOSITO'] = pd.to_numeric(df['IMPORTE_DEL_DEPOSITO'].fillna(0))
-    df['PUJA_MINIMA'][df['PUJA_MINIMA'] == "Sin puja minima"] = 0.0
-    df['TASACION'][df['TASACION'] == "No consta"] = 0.0
-    df['TRAMOS_ENTRE_PUJAS'][df['TRAMOS_ENTRE_PUJAS'] == "Sin tramos"] = 0.0
-    df['VALOR_SUBASTA'][df['VALOR_SUBASTA'] == "No consta"] = 0.0
+    #if 'CANTIDAD_RECLAMADA' in df.columns:
+    #    df['CANTIDAD_RECLAMADA'] = pd.to_numeric(df['CANTIDAD_RECLAMADA'].fillna(0))
+    #if 'IMPORTE_DEL_DEPOSITO' in df.columns:
+    #    df['IMPORTE_DEL_DEPOSITO'] = pd.to_numeric(df['IMPORTE_DEL_DEPOSITO'].fillna(0))
+    #if 'PUJA_MINIMA' in df.columns:
+    #    df['PUJA_MINIMA'][df['PUJA_MINIMA'] == "Sin puja minima"] = 0.0
+    #if 'TASACION' in df.columns:
+    #    df['TASACION'][df['TASACION'] == "No consta"] = 0.0
+    #if 'TRAMOS_ENTRE_PUJAS' in df.columns:
+    #    df['TRAMOS_ENTRE_PUJAS'][df['TRAMOS_ENTRE_PUJAS'] == "Sin tramos"] = 0.0
+    #if 'VALOR_SUBASTA' in df.columns:
+    #    df['VALOR_SUBASTA'][df['VALOR_SUBASTA'] == "No consta"] = 0.0
     return df
 
-def prepare_email(df,newbies):
-    columnas = ['ANUNCIO_BOE','Antigüedad','CANTIDAD_RECLAMADA','CARGAS','CODIGO','CODIGO_POSTAL',
-'CORREO_ELECTRONICO','Clase','Clase de cultivo','Coeficiente de participación','DEPOSITO',
-'DESCRIPCION','DIRECCION','Escalera','FAX','FECHA_DE_ADQUISICION','FECHA_DE_CONCLUSION',
-'FECHA_DE_INICIO','FECHA_DE_MATRICULACION','FORMA_ADJUDICACION','IDENTIFICADOR','IDUFIR',
-'IMPORTE_DEL_DEPOSITO','INFORMACION_ADICIONAL','INSCRIPCION_REGISTRAL','Intensidad productiva',
-'LOCALIDAD','LOTES','Localización','MARCA','MATRICULA','MODELO','NIF','NOMBRE','NUMERO_DE_BASTIDOR',
-'PAIS','PROVINCIA','PUJA_MINIMA','Planta','Puerta','REFERENCIA_CATASTRAL','REFERENCIA_REGISTRAL',
-'Referencia Catastral','SITUACION_POSESORIA','Subparcelas','Superficie','Superficie (ha)',
-'Superficie Catastral (m2)','TASACION','TELEFONO','TIPO_DE_SUBASTA','TITULO_JURIDICO',
-'TRAMOS_ENTRE_PUJAS','URL','Uso','VALOR_SUBASTA','VISITABLE','VIVIENDA_HABITUAL']
-    drop_columns = ['ANUNCIO_BOE','Antigüedad','CARGAS','CODIGO',
-'CORREO_ELECTRONICO','Clase','Clase de cultivo','Coeficiente de participación','DEPOSITO',
-'Escalera','FAX','FECHA_DE_ADQUISICION','FECHA_DE_CONCLUSION','Referencia Catastral',
-'FECHA_DE_MATRICULACION','FORMA_ADJUDICACION','IDUFIR',
-'IMPORTE_DEL_DEPOSITO','INFORMACION_ADICIONAL','INSCRIPCION_REGISTRAL','Intensidad productiva',
-'LOTES','Localización','MARCA','MATRICULA','MODELO','NUMERO_DE_BASTIDOR',
-'PROVINCIA','PUJA_MINIMA','Planta','Puerta','REFERENCIA_CATASTRAL','REFERENCIA_REGISTRAL',
-'SITUACION_POSESORIA','Subparcelas','Superficie','Superficie (ha)',
-'TASACION','TELEFONO','TIPO_DE_SUBASTA','TITULO_JURIDICO',
-'TRAMOS_ENTRE_PUJAS','Uso','VISITABLE','VIVIENDA_HABITUAL']
-    e = df.drop(columns=drop_columns)
-    try:
-        e = e.drop(coulmns= ['NIF','NOMBRE','PAIS'])
-    except Exception as ex:
-        print('')
 
-    #Filter email by date (yesterday)
-    e['FECHA_DE_INICIO'] = pd.to_datetime(e['FECHA_DE_INICIO'])
-    e['FECHA_DE_INICIO'] = e['FECHA_DE_INICIO'].dt.strftime('%d-%m-%Y')
-    ayer = pd.to_datetime(date.today()-timedelta(days=1),format='%Y-%m-%d')
-    ayer = ayer.strftime('%d-%m-%Y')
-    #e = e[e['FECHA_DE_INICIO']==ayer]
-    e = e.drop(columns=['FECHA_DE_INICIO'])
 
-    #e = e[e['LOCALIDAD'].str.contains("madrid")]
 
-    e['URL'] = str("<a href='") + e['URL'] + str("'>Subasta</a>") #URL to the subasta
 
-    e['VALOR_SUBASTA'] = e['VALOR_SUBASTA'].astype('float64')
 
-    e = e[e['IDENTIFICADOR'].isin(newbies)] #select only new values
-
-    return e
-
-def send_mail(df,newbies):
-    email_content = prepare_email(df,newbies)
-    output = build_table(email_content, 'blue_light')
-    body = output.replace('&lt;', '<').replace('&gt;', '>')
-
-    message = MIMEMultipart()
-    hoy = pd.to_datetime(date.today(), format='%Y-%m-%d')
-    hoy = hoy.strftime('%d-%m-%Y')
-    message['Subject'] = 'Subastas BOE del ' + str(hoy)
-    message['From'] = SENDING_EMAIL
-    message['To'] = TO_EMAILS
-
-    body_content = body
-    message.attach(MIMEText(body_content, "html"))
-    msg_body = message.as_string()
-
-    server = SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(message['From'], PASSWORD)
-    server.sendmail(message['From'], message['To'], msg_body)
-    server.quit()
-
-# Code to execute
-page = [1, 3]
-subastas_list = [""]  # Subastas identifier to find them
-subastas_list_stop = 3  # Number of previous subastas to be found before breaking the code
-url_base = 'https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_QjlqRXZva3VCU0JtYW51ZHRQeDVjQWJyQTZ4V0xza1Uvc3RUeWJHM1Z5NnV6U0RCbnVza1hwSVhUSEMyeThxaGNFemZreHFIVE0vcC80c3lyTHYwVVlZSGNjaUNwZkxkU3p5bXBYSEFDMXNQVUxybHQwSnBaTURoYlpobUw5eEtUZS8zTkwyT3U3aFR1MFF1bnFIcDNnZnZjemdBMG1ldnFOd2xhL0hYdUVvY0NRbUptT0daQ3JEQ1JMdVgzUDNwL05DS3BPQmhoNE5UcDc3UTgrVzR0cVRSMlc2QnA5QkNMd3ZvUm1mMHI2M1RxamthelhRVnpXYnlMRXdIRU1jMXhlWFRLQWc0SkxMMnY0Rm9lN1puNU8rWUZ5N3dhNVNtenVQeFhLUHFvZlE9-'
+# CODE
+page = [1, 5]
+subastas_list = get_subastas_in_db()
+subastas_list_stop = 5  # Number of previous subastas to be found before breaking the code
+url_base = open("url_base.txt", "r").read()
 GetDataBoe = GetDataBoe(page=page, subastas_list=subastas_list, subastas_list_stop=subastas_list_stop, url_base=url_base)
 GetDataBoe.perform_loop()
-newbies = GetDataBoe.newbies #New subastas found in the execution
+newbies = GetDataBoe.newbies  # New subastas found in the execution
+# Save newbies
+with open('newbies.csv', 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter='\n', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    spamwriter.writerow(newbies)
 
-#Load data from json, create dataframe and create an excel
+# Load data from json, create dataframe and create an excel
 b = open_json()
 df = adapt_content(b)
-df.to_excel("subastas_output.xlsx",index=False)
-
-#Send email
-if newbies != []:
-    send_mail(df,newbies)
-    print("Mail sent successfully.")
-
+df.to_excel("subastas_output.xlsx", index=False)
