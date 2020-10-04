@@ -1,6 +1,7 @@
 # SUBASTAS BOE
 
 These codes are based on webscrapping with Python, specifically with Selenium and BeautifulSoup. 
+
 There are three main functionalities deployed: 
 -	Retrieval of all the existing auctions (opened and/or closed) for a specific province 
 -	Delivery of daily emails with new auctions
