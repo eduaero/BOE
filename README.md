@@ -3,23 +3,26 @@
 These codes are based on webscrapping with Python, specifically with Selenium and BeautifulSoup. 
 
 There are three main functionalities deployed: 
+```markdown
 -	Retrieval of all the existing auctions (opened and/or closed) for a specific province 
 -	Delivery of daily emails with new auctions
 -	Tracking of the biddings 
 
 ## Retrieval of the existing auctions
-The code to implement this functionality is getData.py and it is settled to Madrid by default. 
+The code to implement this functionality is getData.py and it is settled to Madrid by default.
 The code extracts the auctions and its data from the site and stores it in a json file. Afterwards, it is cleaned and stored in an Excel file to simplify its use and to have the data both in relational and non-relational formats. 
 It has deployed an incremental load, if you have already executed the code beforehand, it only downloads auctions that are not in the files to avoid duplicities and to minimize execution times. 
 The final bidding price is contained in _PRECIO_PUJA_ variable in the dataset.
 To retrieve data from other provinces, you need to change the url_base.txt file where you should copy the URL for the search you want to get. To make the URL valid, you need to remove the 0-50 from the end. The following URL will be transformed into a valid one:
-URL from the site: [https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_S2lpeStKeEJ3ZUlFS2VhbWk3NXJHNDljMk9ySitSZXhYNmc3R2dESSsyZXhCNEtHUlcxbjd2NkdRT24rUVlmVkQyMUwrb3RUQzBwaDQrY3RmREU0UTBzWE5hYllQSCtSSDQ3MzZtNm10YlJLVUk3M1hZNzdvVWloaXg5cWJZSWlLK2dHSnM0alAzejRCSlR0Z0Q1Mm0wYmRyNThjN3FSMG9rcnJka2dSOGFjZWJNbSswejBvNVdSak9xUFFGZ3E0MVIzMU9rZWhXSitCWWlYQkRHdnAzYUtDbHFrYVVwdnduMDdTK2p3M1pSdk4xOU00Z1hzSmRoR3p2YzJ3eFd2dlc4TGFrU3NKeWVOQUpmNEtYZU1PbEttTk15VzRKY1ZzRW5idEJiTWwvMklXWjhkZ1dkaVVJTTNlZ0s4M2VQQWQraDJtNFoxc1hBSVR3eXB6UkxsNkhBPT0,-0-50]
-Valid URL:
-[https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_S2lpeStKeEJ3ZUlFS2VhbWk3NXJHNDljMk9ySitSZXhYNmc3R2dESSsyZXhCNEtHUlcxbjd2NkdRT24rUVlmVkQyMUwrb3RUQzBwaDQrY3RmREU0UTBzWE5hYllQSCtSSDQ3MzZtNm10YlJLVUk3M1hZNzdvVWloaXg5cWJZSWlLK2dHSnM0alAzejRCSlR0Z0Q1Mm0wYmRyNThjN3FSMG9rcnJka2dSOGFjZWJNbSswejBvNVdSak9xUFFGZ3E0MVIzMU9rZWhXSitCWWlYQkRHdnAzYUtDbHFrYVVwdnduMDdTK2p3M1pSdk4xOU00Z1hzSmRoR3p2YzJ3eFd2dlc4TGFrU3NKeWVOQUpmNEtYZU1PbEttTk15VzRKY1ZzRW5idEJiTWwvMklXWjhkZ1dkaVVJTTNlZ0s4M2VQQWQraDJtNFoxc1hBSVR3eXB6UkxsNkhBPT0,-]
+
+[URL from the site](https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_S2lpeStKeEJ3ZUlFS2VhbWk3NXJHNDljMk9ySitSZXhYNmc3R2dESSsyZXhCNEtHUlcxbjd2NkdRT24rUVlmVkQyMUwrb3RUQzBwaDQrY3RmREU0UTBzWE5hYllQSCtSSDQ3MzZtNm10YlJLVUk3M1hZNzdvVWloaXg5cWJZSWlLK2dHSnM0alAzejRCSlR0Z0Q1Mm0wYmRyNThjN3FSMG9rcnJka2dSOGFjZWJNbSswejBvNVdSak9xUFFGZ3E0MVIzMU9rZWhXSitCWWlYQkRHdnAzYUtDbHFrYVVwdnduMDdTK2p3M1pSdk4xOU00Z1hzSmRoR3p2YzJ3eFd2dlc4TGFrU3NKeWVOQUpmNEtYZU1PbEttTk15VzRKY1ZzRW5idEJiTWwvMklXWjhkZ1dkaVVJTTNlZ0s4M2VQQWQraDJtNFoxc1hBSVR3eXB6UkxsNkhBPT0,-0-50)
+[Valid URL] (https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_S2lpeStKeEJ3ZUlFS2VhbWk3NXJHNDljMk9ySitSZXhYNmc3R2dESSsyZXhCNEtHUlcxbjd2NkdRT24rUVlmVkQyMUwrb3RUQzBwaDQrY3RmREU0UTBzWE5hYllQSCtSSDQ3MzZtNm10YlJLVUk3M1hZNzdvVWloaXg5cWJZSWlLK2dHSnM0alAzejRCSlR0Z0Q1Mm0wYmRyNThjN3FSMG9rcnJka2dSOGFjZWJNbSswejBvNVdSak9xUFFGZ3E0MVIzMU9rZWhXSitCWWlYQkRHdnAzYUtDbHFrYVVwdnduMDdTK2p3M1pSdk4xOU00Z1hzSmRoR3p2YzJ3eFd2dlc4TGFrU3NKeWVOQUpmNEtYZU1PbEttTk15VzRKY1ZzRW5idEJiTWwvMklXWjhkZ1dkaVVJTTNlZ0s4M2VQQWQraDJtNFoxc1hBSVR3eXB6UkxsNkhBPT0,-)
+
 This code is automated using a Raspberry Pi (cron jobs) to be executed daily.
 
 ## Delivery of daily emails
 This functionality is deployed in the code sendEmail.py, you can configure the possibility of sending an email with updates. This functionality will send an email with auctions that you have retrieved in the execution but were not in the json file before. Before executing it, it is necessary to define:
+
 -	The credentials of the sending email
 -	The list of emails to send the email
 
