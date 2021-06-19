@@ -2,8 +2,15 @@
 *.xlsx
 *.pbix
 *.txt
-!url_base.txt
 *.log
 *.xml
+*.iml
 *.csv
-/.idea
+!provincias.csv
+*.zip
+*.cfg
+*.yml
+.idea/
+venv/
+.ipynb_checkpoints/
+selenium_driver/

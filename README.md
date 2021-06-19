@@ -3,11 +3,11 @@
 These codes are based on webscrapping with Python, specifically with Selenium and BeautifulSoup. 
 
 There are three main functionalities deployed: 
-```markdown
+
 -	Retrieval of all the existing auctions (opened and/or closed) for a specific province 
 -	Delivery of daily emails with new auctions
 -	Tracking of the biddings 
-```
+
 
 ## Retrieval of the existing auctions
 The code to implement this functionality is **getData.py** and it is settled to Madrid by default.
@@ -66,3 +66,8 @@ The list of emails to send the email: You need to fill a file named emails.txt w
 
 This code is also automated using a Raspberry Pi (cron jobs) to receive emails with the updates at 4 different hours every day.
 
+
+
+<img src="https://u71xya.am.files.1drv.com/y4meE0wn24TXXN3xAc_a2A9NEspvpsiDU0HaCLplX3OQsjpOjkPexddfM_WSjqMg3w0pBrPlboGfvMqBjFX8-FjgTx5p7yxSZXc-chXGZ9L-nBkpRT1pJBu7V31PNAlWVOrQECR-yrKMs6GA2EbUz1qdxmQ85byPCK8QrKrL4OdLd6pVSL-iFif3mwl2x2UHAQiw_leJfzb1wW2RQj8yclwtA?width=660&height=348&cropmode=none" width="660" height="348" />
+
+<img src="https://ur1xya.am.files.1drv.com/y4m6MGiIxXttCcRzv1-lJKBcfZ1KDaz8wHIKML3KxmZ7UnTfcqs9ed5yFKbiPiSJjx1e8E9v13xruk_zBYMvmf40HPcmsjT2d-weNR4zc5DtV_Rm6N2LlCe4HaGdt5mwZQ754DmgDEG60OK_JGAMt1B8rpVrnGkvNejmdj8salvYjXHJArcCGqBvMyqGjlNI-dRgBL38TkeDWkEw3H1YG3SBw?width=256&height=149&cropmode=none" width="256" height="149" />
