@@ -27,17 +27,19 @@ warnings.simplefilter("ignore")
 
 
 def prepare_email(df, newbies):
-    drop_columns = ['ANUNCIO_BOE', 'Antigüedad', 'CARGAS', 'CODIGO', 'CUOTA', 'NIF','NOMBRE',
-'CORREO_ELECTRONICO', 'Clase', 'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-'Escalera', 'FAX', 'FECHA_DE_ADQUISICION', 'FECHA_DE_CONCLUSION', 'Referencia Catastral',
-'FECHA_DE_MATRICULACION', 'FORMA_ADJUDICACION', 'IDUFIR', 'PAIS', 'PARCELA', 'Situación',
-'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL', 'INSCRIPCION_REGISTRAL', 'Intensidad productiva',
-'LOTES', 'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NUMERO_DE_BASTIDOR', 'Referencia catastral',
-'PROVINCIA', 'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL', 'REFERENCIA_REGISTRAL',
-'SITUACION_POSESORIA', 'Subparcelas', 'Superficie', 'Superficie (ha)', 'PRECIO_PUJA',
-'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA', 'TITULO_JURIDICO', 'VALOR_DE_TASACION',
-'TRAMOS_ENTRE_PUJAS', 'Uso', 'VISITABLE', 'VIVIENDA_HABITUAL', 'DESCRIPCION']
-    e = df.drop(columns=drop_columns)
+    
+    #drop_columns = ['ANUNCIO_BOE', 'Antigüedad', 'CARGAS', 'CODIGO', 'CUOTA', 'NIF','NOMBRE',
+#'CORREO_ELECTRONICO', 'Clase', 'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
+#'Escalera', 'FAX', 'FECHA_DE_ADQUISICION', 'FECHA_DE_CONCLUSION', 'Referencia Catastral',
+#'FECHA_DE_MATRICULACION', 'FORMA_ADJUDICACION', 'IDUFIR', 'PAIS', 'PARCELA', 'Situación',
+#'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL', 'INSCRIPCION_REGISTRAL', 'Intensidad productiva',
+#'LOTES', 'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NUMERO_DE_BASTIDOR', 'Referencia catastral',
+#'PROVINCIA', 'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL', 'REFERENCIA_REGISTRAL',
+#'SITUACION_POSESORIA', 'Subparcelas', 'Superficie', 'Superficie (ha)', 'PRECIO_PUJA',
+#'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA', 'TITULO_JURIDICO', 'VALOR_DE_TASACION',
+#'TRAMOS_ENTRE_PUJAS', 'Uso', 'VISITABLE', 'VIVIENDA_HABITUAL', 'DESCRIPCION']
+    cols = ['CANTIDAD_RECLAMADA','CODIGO_POSTAL','DIRECCION','FECHA_DE_INICIO','IDENTIFICADOR','LOCALIDAD', 'URL', 'VALOR_SUBASTA', 'Superficie Catastral (m2)','Superficie']
+    e = df[cols]
 
     # Filter email by date (yesterday)
     #e['FECHA_DE_INICIO'] = pd.to_datetime(e['FECHA_DE_INICIO'])
@@ -66,13 +68,13 @@ def prepare_email(df, newbies):
     e['VALOR_SUBASTA'] = e['VALOR_SUBASTA'].astype('float64')
     e['CODIGO_POSTAL'] = e['CODIGO_POSTAL'].astype('object')
     e['Superficie Catastral (m2)'] = e['Superficie Catastral (m2)'].astype('object')
-    e['SUPERFICIE'] = e['SUPERFICIE'].astype('object')
+    e['Superficie'] = e['Superficie'].astype('object')
     e['VALOR_SUBASTA'] = e['VALOR_SUBASTA'].map('{:,.2f} €'.format)
     e['CANTIDAD_RECLAMADA'] = e['CANTIDAD_RECLAMADA'].map('{:,.2f} €'.format)
 
     # Change order of columns
     cols = ['LOCALIDAD', 'VALOR_SUBASTA', 'DIRECCION', 'CANTIDAD_RECLAMADA',
-            'CODIGO_POSTAL', 'Superficie Catastral (m2)', 'SUPERFICIE', 'URL', 'IDENTIFICADOR']
+            'CODIGO_POSTAL', 'Superficie Catastral (m2)', 'Superficie', 'URL', 'IDENTIFICADOR']
     e = e[cols]
     e = e.reset_index()
 
@@ -126,7 +128,7 @@ with open('newbies_Marbella.csv', newline='') as csvfile:
         newbies.append(row[0])
 
 # Get data
-df = pd.read_excel("subastas_output.xlsx")
+df = pd.read_excel("subastas_output_updated_Marbella.xlsx")
 
 # Send email if there are new subastas
 if newbies != []:

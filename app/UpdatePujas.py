@@ -436,6 +436,7 @@ def update_precio_puja_lotes(df, df_main):
     m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & ((m.PRECIO_PUJA == '[]') | (m.PRECIO_PUJA == 'Sin Puja'))] = "Desierta"
     m.PRECIO_PUJA[m.PRECIO_PUJA == '\n<strong class="destaca">Cancelado</strong>\n'] = 'Cancelado'
 
+    row_num_max = max(m['row_num'])+1
     m = m.rename(columns = {"PRECIO_PUJA_x":"PRECIO_PUJA"})
     m = m.rename(columns = {"FECHA_DE_CONCLUSION_x":"FECHA_DE_CONCLUSION"})
     m = m.rename(columns = {"ID_LOTES_x":"ID_LOTES"})
@@ -451,26 +452,16 @@ def update_precio_puja_lotes(df, df_main):
         m = m.drop(columns = ['URL_y'])
     if 'LOTES_y' in m.columns:
         m = m.drop(columns = ['LOTES_y'])
-    if 'PRECIO_PUJA_1' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_1'])
-    if 'PRECIO_PUJA_2' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_2'])
-    if 'PRECIO_PUJA_3' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_3'])
-    if 'PRECIO_PUJA_4' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_4'])
-    if 'PRECIO_PUJA_5' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_5'])
-    if 'PRECIO_PUJA_6' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_6'])
-    if 'PRECIO_PUJA_7' in m.columns:
-        m = m.drop(columns = ['PRECIO_PUJA_7'])
     if 'row_num' in m.columns:
         m = m.drop(columns = ['row_num'])
     if 'name_row' in m.columns:
         m = m.drop(columns = ['name_row'])
     if 'new' in m.columns:
         m = m.drop(columns = ['new'])
+    
+    for pp in range(1,row_num_max):
+        if 'PRECIO_PUJA_'+str(pp) in m.columns:
+            m = m.drop(columns = ['PRECIO_PUJA_'+str(pp)])
 
     return m
 
