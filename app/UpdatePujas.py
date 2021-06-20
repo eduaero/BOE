@@ -397,39 +397,21 @@ def update_precio_puja(df, df_main):
     #     else:
     #         m.loc[i, 'PRECIO_PUJA_x'] = m.loc[i, 'PRECIO_PUJA_y']
 
-    cols = ['ANUNCIO_BOE', 'Antigüedad', 'CANTIDAD_RECLAMADA', 'CARGAS', 'CODIGO',
-       'CODIGO_POSTAL', 'CORREO_ELECTRONICO', 'CUOTA', 'Clase',
-       'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-       'DESCRIPCION', 'DIRECCION', 'Escalera', 'FAX', 'FECHA_DE_ADQUISICION',
-       'FECHA_DE_CONCLUSION_x', 'FECHA_DE_INICIO', 'FECHA_DE_MATRICULACION',
-       'FORMA_ADJUDICACION', 'IDENTIFICADOR', 'IDUFIR', 'ID_LOTES_x',
-       'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL',
-       'INSCRIPCION_REGISTRAL', 'Intensidad productiva', 'LOCALIDAD', 'LOTES',
-       'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NIF', 'NOMBRE',
-       'NUMERO_DE_BASTIDOR', 'PAIS', 'PARCELA', 'PRECIO_PUJA_x', 'PROVINCIA',
-       'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL',
-       'REFERENCIA_REGISTRAL', 'Referencia Catastral', 'SITUACION_POSESORIA',
-       'SUPERFICIE', 'Subparcelas', 'Superficie', 'Superficie (ha)',
-       'Superficie Catastral (m2)', 'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA',
-       'TITULO_JURIDICO', 'TRAMOS_ENTRE_PUJAS', 'URL_x', 'Uso',
-       'VALOR_DE_TASACION', 'VALOR_SUBASTA', 'VISITABLE', 'VIVIENDA_HABITUAL']
-    m = m[cols]
-    m.columns = ['ANUNCIO_BOE', 'Antigüedad', 'CANTIDAD_RECLAMADA', 'CARGAS', 'CODIGO',
-       'CODIGO_POSTAL', 'CORREO_ELECTRONICO', 'CUOTA', 'Clase',
-       'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-       'DESCRIPCION', 'DIRECCION', 'Escalera', 'FAX', 'FECHA_DE_ADQUISICION',
-       'FECHA_DE_CONCLUSION', 'FECHA_DE_INICIO', 'FECHA_DE_MATRICULACION',
-       'FORMA_ADJUDICACION', 'IDENTIFICADOR', 'IDUFIR', 'ID_LOTES',
-       'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL',
-       'INSCRIPCION_REGISTRAL', 'Intensidad productiva', 'LOCALIDAD', 'LOTES',
-       'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NIF', 'NOMBRE',
-       'NUMERO_DE_BASTIDOR', 'PAIS', 'PARCELA', 'PRECIO_PUJA', 'PROVINCIA',
-       'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL',
-       'REFERENCIA_REGISTRAL', 'Referencia Catastral', 'SITUACION_POSESORIA',
-       'SUPERFICIE', 'Subparcelas', 'Superficie', 'Superficie (ha)',
-       'Superficie Catastral (m2)', 'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA',
-       'TITULO_JURIDICO', 'TRAMOS_ENTRE_PUJAS', 'URL', 'Uso',
-       'VALOR_DE_TASACION', 'VALOR_SUBASTA', 'VISITABLE', 'VIVIENDA_HABITUAL']
+    m = m.rename(columns = {"PRECIO_PUJA_x":"PRECIO_PUJA"})
+    m = m.rename(columns = {"FECHA_DE_CONCLUSION_x":"FECHA_DE_CONCLUSION"})
+    m = m.rename(columns = {"ID_LOTES_x":"ID_LOTES"})
+    m = m.rename(columns = {"URL_x":"URL"})
+    m = m.rename(columns = {"LOTES_x":"LOTES"})
+    if 'PRECIO_PUJA_y' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_y'])
+    if 'FECHA_DE_CONCLUSION_y' in m.columns:
+        m = m.drop(columns = ['FECHA_DE_CONCLUSION_y'])
+    if 'ID_LOTES_y' in m.columns:
+        m = m.drop(columns = ['ID_LOTES_y'])
+    if 'URL_y' in m.columns:
+        m = m.drop(columns = ['URL_y'])
+    if 'LOTES_y' in m.columns:
+        m = m.drop(columns = ['LOTES_y'])
 
     return m
 
@@ -447,55 +429,50 @@ def update_precio_puja_lotes(df, df_main):
     m.PRECIO_PUJA[m.new != '-'] = m.new
 
     # Data quality
-    m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2017-295512'] = 'Sin Puja'
-    m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2019-326232'] = 'Sin Puja'
-    m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2017-275507'] = 'Sin Puja'
-    m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & ((m.PRECIO_PUJA == '[]') | (m.PRECIO_PUJA == 'Sin Puja'))] = "Desierta"
+    #m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2017-295512'] = 'Sin Puja'
+    #m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2019-326232'] = 'Sin Puja'
+    #m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2017-275507'] = 'Sin Puja'
     #m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & (m.PRECIO_PUJA == '')] = "Cancelado"
+    m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & ((m.PRECIO_PUJA == '[]') | (m.PRECIO_PUJA == 'Sin Puja'))] = "Desierta"
     m.PRECIO_PUJA[m.PRECIO_PUJA == '\n<strong class="destaca">Cancelado</strong>\n'] = 'Cancelado'
 
-    cols = ['ANUNCIO_BOE', 'Antigüedad', 'CANTIDAD_RECLAMADA', 'CARGAS', 'CODIGO',
-       'CODIGO_POSTAL', 'CORREO_ELECTRONICO', 'CUOTA', 'Clase',
-       'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-       'DESCRIPCION', 'DIRECCION', 'Escalera', 'FAX', 'FECHA_DE_ADQUISICION',
-       'FECHA_DE_CONCLUSION_x', 'FECHA_DE_INICIO', 'FECHA_DE_MATRICULACION',
-       'FORMA_ADJUDICACION', 'IDENTIFICADOR', 'IDUFIR', 'ID_LOTES_x',
-       'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL',
-       'INSCRIPCION_REGISTRAL', 'Intensidad productiva', 'LOCALIDAD',
-       'LOTES_x', 'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NIF',
-       'NOMBRE', 'NUMERO_DE_BASTIDOR', 'PAIS', 'PARCELA', 'PRECIO_PUJA',
-       'PROVINCIA', 'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL',
-       'REFERENCIA_REGISTRAL', 'Referencia Catastral', 'SITUACION_POSESORIA',
-       'SUPERFICIE', 'Subparcelas', 'Superficie', 'Superficie (ha)',
-       'Superficie Catastral (m2)', 'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA',
-       'TITULO_JURIDICO', 'TRAMOS_ENTRE_PUJAS', 'URL_x', 'Uso',
-       'VALOR_DE_TASACION', 'VALOR_SUBASTA', 'VISITABLE', 'VIVIENDA_HABITUAL']
-    m = m[cols]
-    m.columns = ['ANUNCIO_BOE', 'Antigüedad', 'CANTIDAD_RECLAMADA', 'CARGAS', 'CODIGO',
-       'CODIGO_POSTAL', 'CORREO_ELECTRONICO', 'CUOTA', 'Clase',
-       'Clase de cultivo', 'Coeficiente de participación', 'DEPOSITO',
-       'DESCRIPCION', 'DIRECCION', 'Escalera', 'FAX', 'FECHA_DE_ADQUISICION',
-       'FECHA_DE_CONCLUSION', 'FECHA_DE_INICIO', 'FECHA_DE_MATRICULACION',
-       'FORMA_ADJUDICACION', 'IDENTIFICADOR', 'IDUFIR', 'ID_LOTES',
-       'IMPORTE_DEL_DEPOSITO', 'INFORMACION_ADICIONAL',
-       'INSCRIPCION_REGISTRAL', 'Intensidad productiva', 'LOCALIDAD',
-       'LOTES', 'Localización', 'MARCA', 'MATRICULA', 'MODELO', 'NIF',
-       'NOMBRE', 'NUMERO_DE_BASTIDOR', 'PAIS', 'PARCELA', 'PRECIO_PUJA',
-       'PROVINCIA', 'PUJA_MINIMA', 'Planta', 'Puerta', 'REFERENCIA_CATASTRAL',
-       'REFERENCIA_REGISTRAL', 'Referencia Catastral', 'SITUACION_POSESORIA',
-       'SUPERFICIE', 'Subparcelas', 'Superficie', 'Superficie (ha)',
-       'Superficie Catastral (m2)', 'TASACION', 'TELEFONO', 'TIPO_DE_SUBASTA',
-       'TITULO_JURIDICO', 'TRAMOS_ENTRE_PUJAS', 'URL', 'Uso',
-       'VALOR_DE_TASACION', 'VALOR_SUBASTA', 'VISITABLE', 'VIVIENDA_HABITUAL']
+    m = m.rename(columns = {"PRECIO_PUJA_x":"PRECIO_PUJA"})
+    m = m.rename(columns = {"FECHA_DE_CONCLUSION_x":"FECHA_DE_CONCLUSION"})
+    m = m.rename(columns = {"ID_LOTES_x":"ID_LOTES"})
+    m = m.rename(columns = {"URL_x":"URL"})
+    m = m.rename(columns = {"LOTES_x":"LOTES"})
+    if 'PRECIO_PUJA_y' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_y'])
+    if 'FECHA_DE_CONCLUSION_y' in m.columns:
+        m = m.drop(columns = ['FECHA_DE_CONCLUSION_y'])
+    if 'ID_LOTES_y' in m.columns:
+        m = m.drop(columns = ['ID_LOTES_y'])
+    if 'URL_y' in m.columns:
+        m = m.drop(columns = ['URL_y'])
+    if 'LOTES_y' in m.columns:
+        m = m.drop(columns = ['LOTES_y'])
+    if 'PRECIO_PUJA_1' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_1'])
+    if 'PRECIO_PUJA_2' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_2'])
+    if 'PRECIO_PUJA_3' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_3'])
+    if 'PRECIO_PUJA_4' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_4'])
+    if 'PRECIO_PUJA_5' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_5'])
+    if 'PRECIO_PUJA_6' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_6'])
+    if 'PRECIO_PUJA_7' in m.columns:
+        m = m.drop(columns = ['PRECIO_PUJA_7'])
+    if 'row_num' in m.columns:
+        m = m.drop(columns = ['row_num'])
+    if 'name_row' in m.columns:
+        m = m.drop(columns = ['name_row'])
+    if 'new' in m.columns:
+        m = m.drop(columns = ['new'])
 
     return m
-
-
-#Input data
-#page = [1, 6]  # Indicates the number of pages to search, indicate the number of pages +1
-# URL where to search
-#url_base = "https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_WjJnR095Q0t6Mkt6NGhrT0dWVmFTSnhQNlB3aHh2d3ZkZEtMMGc2UWswa3hjWXI3N1dMazhoT0lFSVF3REhyZ3FvRWtrdzRQcnBWTTJnNzFmQ0lGMlJxQ3FLNnRTUG9WL3lpYy9URmNsVnRGaktYNlIwT3NscWoyK3BpTlVValMvSTVSQkxrN2tCSzV5eTdiWEh2dWxRRlFwRVhvVVUvc1JtUUl1TE9DbVE0cFlQbGEwdHFtam9YUlFUZXE2SExjeS95ODhTOFdWTjArZHBBTmdCaG5PQk01ODQrbXgrenVlOTRzS2U1eWNhQndubS9rMzhwVDFpSlBIZ2NxVkxEWk00dzFYZzZ0R0oyRllzaUJQRlNsdXNod1FhMUI2MDZzbHJkQkkzVkhCSkE9-"
-
 
 # MAIN
 # Retrieve pujas data from regular subastas and update the database

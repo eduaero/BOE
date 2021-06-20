@@ -517,7 +517,7 @@ def new_subastas(GetDataBoe, identifier):
 # Parameters defined
 upload_every_x_min = 1
 identifier = "Marbella"  # sys.argv[1]
-#dropbox_key = 'M_PyPzZUBqkAAAAAAAAAAb17i6RAGPpoCMW83T75c4PcS3BEIgFZKD8N0NoN8_82'
+#dropbox_key = ''
 
 # 1. Initialize the object
 #DropboxBoe = DropboxBoe(dropbox_key, identifier, upload_every_x_min)
@@ -525,18 +525,18 @@ identifier = "Marbella"  # sys.argv[1]
 #DropboxBoe.update_files()
 
 # CODE
-page = [1, 50]
-subastas_list_stop = 99999999999  # Number of previous subastas to be found before breaking the code
+page = [1, 11]
+subastas_list_stop = 10  # Number of previous subastas to be found before breaking the code
 
 #provincias = pd.read_csv("provincias.csv", sep=';')
 #url_base = provincias.URL[provincias.Provincia==identifier].values[0][:-4]
 url_base = "https://subastas.boe.es/subastas_ava.php?accion=Mas&id_busqueda=_cTc2Y2c4cS9RaTFaTE9sbFlBTjZRM25rQWdaMDZaNVhHVEpDMDRkYjZaOVQzclQxY1gzeDFDSkUwTHNna1FweEF1NXJDQjhqVjBhVTZoRnZnK2pMK0pIaU9xa3JoV0ZvWVdCcWQvL0lHeXEzYk1YSWVYV0IzU1A2ZnhiQU1TZFdsSDdRZ3k1Y3FwdHNQZEdNMG5nSGVFNzBWKzRrVjJWcEJVWnpZTEtoTWRvWHUvakxwY2liNm14QTU2eVlrSlJaY25sZm54Mmw0a1R4bUdlWmZtWE9wZWlTZGM1SDRhckZYTHp1SUptUjFaNTdsdCtIMGxKNTlaQTBvd3ZWS05sZUdNSzFSWTB6VHVrKzI3RXVSOXR1em9MU2U0UlpsVXRnbTdZRGljSkk2YmNEM3IrS3BZbDkvOVlaOFhSbWJML09UQ0V5bVBWcEFlQVF6aFBMajZIWDJnPT0,-"
 subastas_list = get_subastas_in_db(identifier)
-GetDataBoe = GetDataBoe(page=[1, 99999999], subastas_list=subastas_list, subastas_list_stop=subastas_list_stop,
+GetDataBoe = GetDataBoe(page=page, subastas_list=subastas_list, subastas_list_stop=subastas_list_stop,
                         url_base=url_base, identifier=identifier)
 GetDataBoe.perform_loop(identifier) #, DropboxBoe)
 
-#new_subastas(GetDataBoe, identifier)
+new_subastas(GetDataBoe, identifier)
 
 # Update pujas
 # Main json
@@ -545,17 +545,19 @@ df_main = adapt_content(open_json_file(file_main))
 
 # Json with updates
 file_updated = "subastas_to_update_puja_" + str(identifier) + ".json"
-#retrieve_data(page, url_base, file_name=file_updated)
-#df = adapt_content_updates(open_json_file(file_updated))
-#m = update_precio_puja(df, df_main)
+print(file_updated)
+retrieve_data(page, url_base, file_name=file_updated)
+df = adapt_content_updates(open_json_file(file_updated))
+m = update_precio_puja(df, df_main)
 
 file_lotes = "subastas_to_update_puja_lotes_" + str(identifier) + ".json"
-#retrieve_data_lotes(page, url_base, file_name=file_lotes)
-#df_lotes = adapt_content_updates(open_json_file(file_lotes))
-#x = update_precio_puja_lotes(df_lotes, m)
+print(file_lotes)
+retrieve_data_lotes(page, url_base, file_name=file_lotes)
+df_lotes = adapt_content_updates(open_json_file(file_lotes))
+x = update_precio_puja_lotes(df_lotes, m)
 
 # Save updated file
-#writer = pd.ExcelWriter(r'subastas_output_updated_' + str(identifier) + '.xlsx', engine='xlsxwriter',
-#                        options={'strings_to_urls': False})
-#x.to_excel(writer, index=False)
-#writer.close()
+writer = pd.ExcelWriter(r'subastas_output_updated_' + str(identifier) + '.xlsx', engine='xlsxwriter',
+                        options={'strings_to_urls': False})
+x.to_excel(writer, index=False)
+writer.close()

@@ -120,7 +120,7 @@ emails = list(open("emails.txt", "r").read().split('\n'))
 
 # Get new subastas
 newbies = []
-with open('newbies.csv', newline='') as csvfile:
+with open('newbies_Marbella.csv', newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
     for row in spamreader:
         newbies.append(row[0])
