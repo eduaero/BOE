@@ -378,10 +378,10 @@ def retrieve_data_lotes(page, url_base, file_name):
 def update_precio_puja(df, df_main):
     m = df_main.merge(df, how='left', left_on='IDENTIFICADOR', right_on='IDENTIFICADOR')
     # Data quality
-    if 'LOTES' in m.columns:
-        m.PRECIO_PUJA_x[(m.LOTES == "Sin lotes") & (m.PRECIO_PUJA_x == "None")] = "Desierta"
-    else:
-        m.PRECIO_PUJA_x[(m.LOTES_x == "Sin lotes") & (m.PRECIO_PUJA_x == "None")] = "Desierta"
+    #if 'LOTES' in m.columns:
+    #    m.PRECIO_PUJA_x[(m.LOTES == "Sin lotes") & (m.PRECIO_PUJA_x == "None")] = "Desierta"
+    #else:
+    #    m.PRECIO_PUJA_x[(m.LOTES_x == "Sin lotes") & (m.PRECIO_PUJA_x == "None")] = "Desierta"
     m.PRECIO_PUJA_x[(m.PRECIO_PUJA_x == "None") | (m.PRECIO_PUJA_x == "")] = m.PRECIO_PUJA_y
 
     #m.PRECIO_PUJA_x[(isinstance(m.PRECIO_PUJA_x, float)) & (math.isnan(float(m.PRECIO_PUJA_x)))] = m.PRECIO_PUJA_y
@@ -433,10 +433,9 @@ def update_precio_puja_lotes(df, df_main):
     #m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2019-326232'] = 'Sin Puja'
     #m.PRECIO_PUJA[m['IDENTIFICADOR'] == 'SUB-NV-2017-275507'] = 'Sin Puja'
     #m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & (m.PRECIO_PUJA == '')] = "Cancelado"
-    m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & ((m.PRECIO_PUJA == '[]') | (m.PRECIO_PUJA == 'Sin Puja'))] = "Desierta"
+    #m.PRECIO_PUJA[(m.LOTES_x != "Sin lotes") & ((m.PRECIO_PUJA == '[]') | (m.PRECIO_PUJA == 'Sin Puja'))] = "Desierta"
     m.PRECIO_PUJA[m.PRECIO_PUJA == '\n<strong class="destaca">Cancelado</strong>\n'] = 'Cancelado'
 
-    row_num_max = max(m['row_num'])+1
     m = m.rename(columns = {"PRECIO_PUJA_x":"PRECIO_PUJA"})
     m = m.rename(columns = {"FECHA_DE_CONCLUSION_x":"FECHA_DE_CONCLUSION"})
     m = m.rename(columns = {"ID_LOTES_x":"ID_LOTES"})
@@ -459,11 +458,21 @@ def update_precio_puja_lotes(df, df_main):
     if 'new' in m.columns:
         m = m.drop(columns = ['new'])
     
-    for pp in range(1,row_num_max):
+    for pp in range(1,100):
         if 'PRECIO_PUJA_'+str(pp) in m.columns:
             m = m.drop(columns = ['PRECIO_PUJA_'+str(pp)])
+        else:
+            break
 
     return m
+
+
+# Clean data
+def clean_data(df):
+    df.LOTES[df.LOTES=='Sin lotes'] = 1
+    df.VALOR_SUBASTA[df.VALOR_SUBASTA == 'Ver valor de subasta en cada lote (los lotes se subastan de forma independiente)'] = 0
+    df.VALOR_SUBASTA = df.VALOR_SUBASTA.replace(to_replace='.', value=',')
+    return df
 
 # MAIN
 # Retrieve pujas data from regular subastas and update the database

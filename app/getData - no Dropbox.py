@@ -15,7 +15,7 @@ import warnings #by default
 import csv
 import sys
 #from DropboxUpload import DropboxBoe
-from UpdatePujas import retrieve_data, retrieve_data_lotes, update_precio_puja, update_precio_puja_lotes
+from UpdatePujas import retrieve_data, retrieve_data_lotes, update_precio_puja, update_precio_puja_lotes, clean_data
 
 # Initial conditions
 pd.set_option('display.max_colwidth', 1000)
@@ -556,8 +556,11 @@ retrieve_data_lotes(page, url_base, file_name=file_lotes)
 df_lotes = adapt_content_updates(open_json_file(file_lotes))
 x = update_precio_puja_lotes(df_lotes, m)
 
+#Clean data
+cd = clean_data(x)
+
 # Save updated file
 writer = pd.ExcelWriter(r'subastas_output_updated_' + str(identifier) + '.xlsx', engine='xlsxwriter',
                         options={'strings_to_urls': False})
-x.to_excel(writer, index=False)
+cd.to_excel(writer, index=False)
 writer.close()
