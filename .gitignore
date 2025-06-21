@@ -1,7 +1,6 @@
 *.json
 *.xlsx
 *.pbix
-*.txt
 *.log
 *.xml
 *.iml
@@ -14,3 +13,15 @@
 venv/
 .ipynb_checkpoints/
 selenium_driver/
+venv/
+_pycache_/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.sqlite3
+.env
+.DS_Store
+.idea/
+.vscode/
+boe/*
